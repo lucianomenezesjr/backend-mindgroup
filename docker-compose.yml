@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mindgroup-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: sua_senha
+      MYSQL_DATABASE: mindgroup
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  backend:
+    build: .
+    container_name: mindgroup-backend
+    restart: always
+    ports:
+      - "3001:3000" # expõe a porta 3000 do container na 3001 local
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: sua_senha
+      DB_DATABASE: mindgroup
+    depends_on:
+      - mysql
+
+volumes:
+  mysql-data:

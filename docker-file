@@ -1,0 +1,23 @@
+# Usar imagem node oficial
+FROM node:18-alpine
+
+# Diretório de trabalho no container
+WORKDIR /usr/src/app
+
+# Copia package.json e package-lock.json para instalar deps
+COPY package*.json ./
+
+# Instala dependências
+RUN npm install
+
+# Copia todo o projeto para dentro do container
+COPY . .
+
+# Compila o TypeScript (gera JS em /dist)
+RUN npm run build
+
+# Expõe a porta que o Nest usa
+EXPOSE 3000
+
+# Comando para rodar a aplicação em produção
+CMD ["node", "dist/main.js"]
