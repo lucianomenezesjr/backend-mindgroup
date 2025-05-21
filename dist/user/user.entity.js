@@ -11,10 +11,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const typeorm_1 = require("typeorm");
+const artigo_entity_1 = require("../artigos/entities/artigo.entity");
 let User = class User {
     id;
     email;
     password;
+    nome;
+    sobrenome;
+    imagemPerfil;
+    artigos;
 };
 exports.User = User;
 __decorate([
@@ -22,13 +27,29 @@ __decorate([
     __metadata("design:type", Number)
 ], User.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ unique: true }),
+    (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "nome", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "sobrenome", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "imagemPerfil", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => artigo_entity_1.Artigo, artigo => artigo.autor),
+    __metadata("design:type", Array)
+], User.prototype, "artigos", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)()
 ], User);

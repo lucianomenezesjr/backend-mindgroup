@@ -1,36 +1,54 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 import { User } from './user.entity';
 
 @Injectable()
 export class UserService {
   constructor(
+    private readonly jwtService: JwtService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(email: string, password: string): Promise<Omit<User, 'password'>> {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = this.userRepository.create({ email, password: hashedPassword });
-    const savedUser = await this.userRepository.save(user);
-    const { password: _, ...result } = savedUser;
-    return result;
+  async create(email: string, password: string) {
+    const existing = await this.userRepository.findOne({ where: { email } });
+    if (existing) {
+      throw new Error('Email já cadastrado');
+    }
+
+    const user = this.userRepository.create({ email, password });
+    await this.userRepository.save(user);
+    return { id: user.id, email: user.email };
   }
 
-  async login(email: string, password: string): Promise<Omit<User, 'password'>> {
-    const user = await this.userRepository.findOne({ where: { email } });
-
-    if (!user) throw new UnauthorizedException('Credenciais inválidas');
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) throw new UnauthorizedException('Credenciais inválidas');
-
-    const { password: _, ...result } = user;
-    return result;
+  async validateUser(email: string, password: string) {
+    const user = await this.userRepository.findOne({ where: { email, password } });
+    if (!user) {
+      return null;
+    }
+    return user;
   }
 
-  async findByEmail(email: string): Promise<User | null> {
+  async login(email: string, password: string) {
+    const user = await this.validateUser(email, password);
+    if (!user) {
+      throw new UnauthorizedException('Email ou senha inválidos');
+    }
+
+    const payload = { sub: user.id, email: user.email };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  async findByEmail(email: string) {
     return this.userRepository.findOne({ where: { email } });
+  }
+
+  async update(userId: number, updateUserDto: Partial<User>) {
+    await this.userRepository.update(userId, updateUserDto);
+    return this.userRepository.findOne({ where: { id: userId } });
   }
 }

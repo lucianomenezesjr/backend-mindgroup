@@ -1,14 +1,20 @@
-// user.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './user.entity';
-import { UserService } from './user.service';
+import { JwtModule } from '@nestjs/jwt';
 import { UserController } from './user.controller';
+import { UserService } from './user.service';
+import { User } from './user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User])], // ESSENCIAL para o repositório funcionar
+  imports: [
+    TypeOrmModule.forFeature([User]), // ✅ Isso aqui é o que cria o UserRepository
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'minha_chave_secreta',
+      signOptions: { expiresIn: '1h' },
+    }),
+  ],
   controllers: [UserController],
   providers: [UserService],
-  exports: [UserService], // opcional, mas útil se outro módulo usar esse service
+  exports: [UserService],
 })
 export class UserModule {}

@@ -10,8 +10,8 @@ export class AuthController {
   ) {}
 
   @Post('login')
-  async login(@Body() body: { email: string; password: string }) {
-    const user = await this.userService.login(body.email, body.password);
-    return this.authService.generateToken(user);
-  }
+async login(@Body() body: { email: string; password: string }) {
+  return this.userService.login(body.email, body.password);
+}
+
 }

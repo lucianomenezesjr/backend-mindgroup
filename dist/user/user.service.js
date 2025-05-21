@@ -14,40 +14,56 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const common_1 = require("@nestjs/common");
+const jwt_1 = require("@nestjs/jwt");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const bcrypt = require("bcrypt");
 const user_entity_1 = require("./user.entity");
 let UserService = class UserService {
+    jwtService;
     userRepository;
-    constructor(userRepository) {
+    constructor(jwtService, userRepository) {
+        this.jwtService = jwtService;
         this.userRepository = userRepository;
     }
     async create(email, password) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = this.userRepository.create({ email, password: hashedPassword });
-        const savedUser = await this.userRepository.save(user);
-        const { password: _, ...result } = savedUser;
-        return result;
+        const existing = await this.userRepository.findOne({ where: { email } });
+        if (existing) {
+            throw new Error('Email já cadastrado');
+        }
+        const user = this.userRepository.create({ email, password });
+        await this.userRepository.save(user);
+        return { id: user.id, email: user.email };
+    }
+    async validateUser(email, password) {
+        const user = await this.userRepository.findOne({ where: { email, password } });
+        if (!user) {
+            return null;
+        }
+        return user;
     }
     async login(email, password) {
-        const user = await this.userRepository.findOne({ where: { email } });
-        if (!user)
-            throw new common_1.UnauthorizedException('Credenciais inválidas');
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid)
-            throw new common_1.UnauthorizedException('Credenciais inválidas');
-        const { password: _, ...result } = user;
-        return result;
+        const user = await this.validateUser(email, password);
+        if (!user) {
+            throw new common_1.UnauthorizedException('Email ou senha inválidos');
+        }
+        const payload = { sub: user.id, email: user.email };
+        return {
+            access_token: this.jwtService.sign(payload),
+        };
     }
     async findByEmail(email) {
         return this.userRepository.findOne({ where: { email } });
+    }
+    async update(userId, updateUserDto) {
+        await this.userRepository.update(userId, updateUserDto);
+        return this.userRepository.findOne({ where: { id: userId } });
     }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __metadata("design:paramtypes", [jwt_1.JwtService,
+        typeorm_2.Repository])
 ], UserService);
 //# sourceMappingURL=user.service.js.map

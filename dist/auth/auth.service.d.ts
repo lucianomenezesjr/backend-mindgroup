@@ -8,6 +8,10 @@ export declare class AuthService {
     validateUser(email: string, password: string): Promise<{
         id: number;
         email: string;
+        nome: string;
+        sobrenome: string;
+        imagemPerfil: string;
+        artigos: import("../artigos/entities/artigo.entity").Artigo[];
     }>;
     generateToken(user: Partial<User>): {
         access_token: string;
