@@ -18,7 +18,7 @@ services:
     container_name: mindgroup-backend
     restart: always
     ports:
-      - "3001:3000" # expõe a porta 3000 do container na 3001 local
+      - "3001:3000"
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
