@@ -6,4 +6,5 @@ export declare class Artigo {
     imagemBanner: string;
     autor: User;
     autorId: number;
+    createdAt: Date;
 }

@@ -31,6 +31,13 @@ let ArtigosService = class ArtigosService {
             relations: ['autor'],
         });
     }
+    async findByUser(userId) {
+        return this.artigoRepo.find({
+            where: { autor: { id: userId } },
+            relations: ['autor'],
+            order: { id: 'DESC' },
+        });
+    }
     async findOne(id) {
         const artigo = await this.artigoRepo.findOne({
             where: { id },
@@ -40,6 +47,33 @@ let ArtigosService = class ArtigosService {
             throw new common_1.NotFoundException(`Artigo com ID ${id} não encontrado.`);
         }
         return artigo;
+    }
+    async remove(id, userId) {
+        const artigo = await this.artigoRepo.findOne({
+            where: { id },
+            relations: ['autor'],
+        });
+        if (!artigo) {
+            throw new common_1.NotFoundException('Artigo não encontrado');
+        }
+        if (artigo.autor.id !== userId) {
+            throw new common_1.ForbiddenException('Você não tem permissão para deletar este artigo.');
+        }
+        await this.artigoRepo.remove(artigo);
+    }
+    async update(id, updateDto, userId) {
+        const artigo = await this.artigoRepo.findOne({
+            where: { id },
+            relations: ['autor'],
+        });
+        if (!artigo) {
+            throw new common_1.NotFoundException('Artigo não encontrado');
+        }
+        if (artigo.autor.id !== userId) {
+            throw new common_1.ForbiddenException('Você não tem permissão para editar este artigo.');
+        }
+        Object.assign(artigo, updateDto);
+        return this.artigoRepo.save(artigo);
     }
 };
 exports.ArtigosService = ArtigosService;

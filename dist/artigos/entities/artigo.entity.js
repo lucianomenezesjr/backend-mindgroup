@@ -10,8 +10,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Artigo = void 0;
-const user_entity_1 = require("../../user/user.entity");
 const typeorm_1 = require("typeorm");
+const user_entity_1 = require("../../user/user.entity");
 let Artigo = class Artigo {
     id;
     titulo;
@@ -19,6 +19,7 @@ let Artigo = class Artigo {
     imagemBanner;
     autor;
     autorId;
+    createdAt;
 };
 exports.Artigo = Artigo;
 __decorate([
@@ -46,6 +47,10 @@ __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", Number)
 ], Artigo.prototype, "autorId", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], Artigo.prototype, "createdAt", void 0);
 exports.Artigo = Artigo = __decorate([
     (0, typeorm_1.Entity)()
 ], Artigo);

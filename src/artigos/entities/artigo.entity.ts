@@ -1,5 +1,12 @@
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  JoinColumn,
+  CreateDateColumn,
+} from 'typeorm';
 import { User } from '../../user/user.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 
 @Entity()
 export class Artigo {
@@ -21,4 +28,7 @@ export class Artigo {
 
   @Column()
   autorId: number;
+
+  @CreateDateColumn()
+  createdAt: Date; // <-- Aqui está o campo de data de criação
 }
